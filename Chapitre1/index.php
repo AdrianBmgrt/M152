@@ -1,5 +1,17 @@
 <?php
 
-require("controllers/home.php");
-//var_dump($_SERVER['DOCUMENT_ROOT']."/M152/Chapitre1/controllers/home.php");
+$action = filter_input(INPUT_GET, "action", FILTER_SANITIZE_URL);
+if (empty($action)) {
+    $action = 'home';
+}
+
+switch ($action) {
+    case 'home':
+        require("../Chapitre1/controllers/home.php");
+        break;
+    case 'post':
+        require("../Chapitre1/controllers/post.php");
+        break;
+}
+
 ?>

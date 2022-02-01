@@ -1,9 +1,9 @@
 <?php
-require("views/header.html");
+$pageTitle = "Post";
 
-require("views/post.html");
+require("views/header.php");
 
-require("views/footer.html");
+require("views/post.php");
+
+require("views/footer.php");
 ?>
-
-

@@ -1,9 +1,10 @@
 <?php
+$pageTitle = "Home";
 
-require("views/header.html");
+require("views/header.php");
 
-require("views/home.html");
+require("views/home.php");
 
-require("views/footer.html");
+require("views/footer.php");
 
 ?>

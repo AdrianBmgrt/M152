@@ -1,10 +1,17 @@
+<?php
+
+if (empty($pageTitle)){
+    $pageTitle = "sans titre";
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
-	<title>Facebook Theme Demo</title>
+	<title><?= $pageTitle ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link href="assets/css/bootstrap.css" rel="stylesheet">
 	<!--[if lt IE 9]>
