@@ -18,43 +18,30 @@
 					require("nav.php");
 					?>
 				</div>
+				<form action="?action=home" method="post" enctype="multipart/form-data">
 				<!-- /top nav -->
 				<div class="padding">
 					<div class="full col-sm-9">
 						<!-- content -->
 						<div class="row">
 							<!-- main col right -->
-							<div class="col-sm-7">
-
-
-							</div>
-
-						</div>
-						<!--/row-->
-
-						<div class="row">
-							<div class="col-sm-6">
-								<a href="#">Twitter</a> <small class="text-muted">|</small> <a href="#">Facebook</a>
-								<small class="text-muted">|</small> <a href="#">Google+</a>
+							<div class="col-sm-12">
+								<div class="form-group">
+									<label for="commentaire">Message :</label>
+									<textarea class="form-control" id="commentaire" rows="3"></textarea>
+								</div>
+								<div class="form-group">
+									<label for="imageFile">Image :</label>
+									<input type="file" class="form-control-file" id="imageFile">
+								</div>
+								<button type="submit" class="btn btn-primary">Submit</button>
 							</div>
 						</div>
-
-						<div class="row" id="footer">
-							<div class="col-sm-6">
-
-							</div>
-							<div class="col-sm-6">
-								<p>
-									<a href="#" class="pull-right">�Copyright 2013</a>
-								</p>
-							</div>
-						</div>
-
-					</div><!-- /col-9 -->
+					</div>
 				</div><!-- /padding -->
+				</form>
 			</div>
 			<!-- /main -->
-
 		</div>
 	</div>
 	</div>

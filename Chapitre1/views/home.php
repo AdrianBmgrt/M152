@@ -64,22 +64,8 @@
 								</div>
 -->
 							</div>
-
-
 						</div>
-						<!--/row-->
-
-						<div class="row">
-							<div class="col-sm-6">
-								<a href="#">Twitter</a> <small class="text-muted">|</small> <a href="#">Facebook</a>
-								<small class="text-muted">|</small> <a href="#">Google+</a>
-							</div>
-						</div>
-
-						<hr>
-
-
-					</div><!-- /col-9 -->
+					</div>
 				</div><!-- /padding -->
 			</div>
 			<!-- /main -->
