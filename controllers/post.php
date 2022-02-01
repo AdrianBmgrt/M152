@@ -30,7 +30,7 @@ switch ($action) {
         }
 
         // Check file size
-        elseif ($_FILES["imageFile"]["size"] > 1000000) {
+        elseif ($_FILES["imageFile"]["size"] > 70000000) {
             $message = "Sorry, your file is too large.";
             $uploadOk = 0;
         }
@@ -45,23 +45,15 @@ switch ($action) {
         }
 
         // Check if $uploadOk is set to 0 by an error
-        elseif ($uploadOk == 0 && empty($nomVille) or empty($descriptionVille) or empty($_FILES["imageFile"]["name"])) {
+        elseif ($uploadOk == 0 && empty($_FILES["imageFile"]["name"])) {
             $message = "Veuillez vérifier que vous avez bien rempli tous les cases.";
             // if everything is ok, try to upload file
             $uploadOk = 0;
         }
 
-        elseif (checkVilleExist($nomVille)) {
-            $message = "La ville existe déjà.";
-            $uploadOk = 0;
-        }
-        else {
-            addVille($nomVille, $descriptionVille, $_FILES["imageFile"]["name"]);
-            $message = "La ville a bien été créé.";
-            $uploadOk = 1;
-        }
-
         if ($uploadOk == 1) {
+            createPost($commentaire, date("Y-m-d H:i:s"));
+            createMedia($_FILES["img"]["type"], $_FILES["imageFile"]["name"], date("Y-m-d H:i:s"));            
             if (move_uploaded_file($_FILES["imageFile"]["tmp_name"], $target_file)) {
                 //$message = "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"])) . " has been uploaded.";
             } 
@@ -71,10 +63,6 @@ switch ($action) {
         }
         
         break;
-
-    case 'cancel':
-        header('Location: ../controllers/crudDB.php'); // Se dirige vers le crud
-        break;
 }
 
 require("views/header.php");
@@ -82,4 +70,5 @@ require("views/header.php");
 require("views/post.php");
 
 require("views/footer.php");
+
 ?>
