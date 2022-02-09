@@ -18,7 +18,7 @@
 					require("nav.php");
 					?>
 				</div>
-				<form action="?action=home" method="post" enctype="multipart/form-data">
+				<form action="" method="post" enctype="multipart/form-data">
 				<!-- /top nav -->
 				<div class="padding">
 					<div class="full col-sm-9">
@@ -28,14 +28,15 @@
 							<div class="col-sm-12">
 								<div class="form-group">
 									<label for="commentaire">Message :</label>
-									<textarea class="form-control" id="commentaire" rows="3"></textarea>
+									<textarea class="form-control"  name="commentaire" id="commentaire" rows="5"></textarea>
 								</div>
 								<div class="form-group">
 									<label for="imageFile">Image :</label>
-									<input type="file" class="form-control-file" id="imageFile" accept="image/png, image/gif, image/jpeg" multiple/>
+									<input type="file" class="form-control-file" id="imageFile" name="imageFile" accept="image/png, image/gif, image/jpeg" multiple/>
 								</div>
-								<button type="submit" class="btn btn-primary">Submit</button>
+								<button type="submit" name="action" value="submit" class="btn btn-primary">Submit</button>
 							</div>
+							<?= $message ?>
 						</div>
 					</div>
 				</div><!-- /padding -->

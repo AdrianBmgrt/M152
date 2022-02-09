@@ -7,10 +7,10 @@ if (empty($action)) {
 
 switch ($action) {
     case 'home':
-        require("../Chapitre1/controllers/home.php");
+        require("controllers/home.php");
         break;
     case 'post':
-        require("../Chapitre1/controllers/post.php");
+        require("controllers/post.php");
         break;
 }
 
