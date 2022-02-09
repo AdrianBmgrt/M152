@@ -18,7 +18,7 @@
 					require("nav.php");
 					?>
 				</div>
-				<form action="" method="post" enctype="multipart/form-data">
+				<form action="#" method="post" enctype="multipart/form-data">
 				<!-- /top nav -->
 				<div class="padding">
 					<div class="full col-sm-9">

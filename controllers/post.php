@@ -1,5 +1,7 @@
 <?php
 
+require "lib/boiteaoutils.inc.php";
+
 $pageTitle = "Post";
 
 $message = "";
@@ -8,11 +10,11 @@ $action      = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
 
 switch ($action) {
     case 'submit':
-        $target_dir = "../img/"; // specifies the directory where the file is going to be placed
+        $target_dir = "img/"; // specifies the directory where the file is going to be placed
         $target_file = $target_dir . basename($_FILES["imageFile"]["name"]);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        $tmpName = $_FILES["imageFile"]["tmp_name"];
+
         // Check if image file is a actual image or fake image
         if (isset($_POST["submit"])) {
             $check = getimagesize($_FILES["imageFile"]["tmp_name"]);
@@ -32,7 +34,7 @@ switch ($action) {
         }
 
         // Check file size
-        if ($_FILES["imageFile"]["size"] > 70000000) {
+        if ($_FILES["imageFile"]["size"] > 3000000) {
             $message = "Sorry, your file is too large.";
             $uploadOk = 0;
         }
@@ -48,11 +50,15 @@ switch ($action) {
             $message = "Sorry, your file was not uploaded.";
             // if everything is ok, try to upload file
         } else {
-            if (move_uploaded_file($tmpName, $target_file)) {
+            createPost($commentaire, date("Y-m-d H:i:s"));
+            createMedia($imageFileType, $_FILES["imageFile"]["name"], date("Y-m-d H:i:s"));
+            
+            if (move_uploaded_file($_FILES["imageFile"]["tmp_name"], $target_file)) {
                 $message = "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"])) . " has been uploaded.";
             } else {
                 $message = "Sorry, there was an error uploading your file.";
             }
+            
         }
         break;
 }

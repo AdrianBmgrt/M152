@@ -103,7 +103,8 @@ function createPost($commentaire, $creationDate)
     $answer = false;
     try {
         $ps->bindParam(':COMMENTAIRE', $commentaire, PDO::PARAM_STR);
-        $ps->bindParam(':CREATIONDATE', $creationDate, date("Y-m-d H:i:s"));
+        $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
+        //$ps->bindParam(':CREATIONDATE', $creationDate, date("Y-m-d H:i:s"));
         $answer = $ps->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
@@ -176,7 +177,7 @@ function createMedia($typeMedia, $nomMedia, $creationDate)
 {
     static $ps = null;
     $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`) ";
-    $sql .= "VALUES (:COMMENTAIRE, :NOMMEDIA, :CREATIONDATE)";
+    $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE)";
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
     }
