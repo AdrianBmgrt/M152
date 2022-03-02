@@ -5,19 +5,21 @@ require "lib/boiteaoutils.inc.php";
 $pageTitle = "Post";
 
 $message = "";
-$commentaire = filter_input(INPUT_POST, 'commentaire', FILTER_SANITIZE_STRING);
-$action      = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_STRING);
+$commentaire = filter_input(INPUT_POST, 'commentaire');
+$action      = filter_input(INPUT_POST, 'action');
 
 switch ($action) {
     case 'submit':
-
         $nbFile = count($_FILES['imageFile']['name']);
-
+        $target_dir = "img/"; // specifies the directory where the file is going to be placed
+        $uploadOk = 1;
+        if ($uploadOk == 1) {
+            createPost($commentaire, date("Y-m-d H:i:s"));
+        }
         for ($i = 0; $i < $nbFile; $i++) {
 
-            $target_dir = "img/"; // specifies the directory where the file is going to be placed
             $target_file = $target_dir . basename($_FILES["imageFile"]["name"][$i]);
-            $uploadOk = 1;
+
             $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
 
@@ -56,11 +58,9 @@ switch ($action) {
                 $message = "Sorry, your file was not uploaded.";
                 // if everything is ok, try to upload file
             } else {
-                createPost($commentaire, date("Y-m-d H:i:s"));
-                createMedia($imageFileType, $_FILES["imageFile"]["name"][$i], date("Y-m-d H:i:s"));
-
                 if (move_uploaded_file($_FILES["imageFile"]["tmp_name"][$i], $target_file)) {
-                    $message = "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"][$i])) . " has been uploaded.";
+                    $message .= "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"][$i])) . " has been uploaded.\n";
+                    createMedia($imageFileType, $_FILES["imageFile"]["name"][$i], date("Y-m-d H:i:s"), getLastId());
                 } else {
                     $message = "Sorry, there was an error uploading your file.";
                 }
@@ -74,5 +74,4 @@ require("views/header.php");
 require("views/post.php");
 
 require("views/footer.php");
-var_dump($_FILES);
 ?>

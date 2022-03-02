@@ -48,21 +48,7 @@
 										</div>
 									</form>
 								</div>
-
-								<!--
-								<div class="panel panel-default">
-									<div class="panel-thumbnail"><img src="../assets/img/bg_4.jpg" class="img-responsive">
-									</div>
-									<div class="panel-body">
-										<hr>
-										Design, build, test, and prototype
-										using Bootstrap in real-time from your Web browser. Bootply combines the
-										power of hand-coded HTML, CSS and JavaScript with the benefits of
-										responsive design using Bootstrap. Find and showcase Bootstrap-ready
-										snippets in the 100% free Bootply.com code repository.
-									</div>
-								</div>
--->
+								<?= PostAndMediaToCarousel() ?>
 							</div>
 						</div>
 					</div>

@@ -41,20 +41,18 @@ function m152DB()
  * @param mixed $idPokemon
  * @return false|array 
  */
-function readPokemon($idPokemon)
+function readAllPostAndMedia()
 {
     static $ps = null;
-    $sql = 'SELECT idPokemon, NomPokemon';
-    $sql .= ' FROM pokedex.Pokemons';
-    $sql .= ' WHERE idPokemon = :IDPOKEMON';
+    $sql = 'SELECT m.idPost, m.nomMedia, p.commentaire';
+    $sql .= ' FROM m152.media as m, m152.post as p ';
+    $sql .= ' WHERE p.idPost = m.idPost ';
 
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
     }
     $answer = false;
     try {
-        $ps->bindParam(':IDPOKEMON', $idPokemon, PDO::PARAM_INT);
-
         if ($ps->execute())
             $answer = $ps->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -63,27 +61,106 @@ function readPokemon($idPokemon)
     return $answer;
 }
 
-function readTypes($from = 0, $offset = 50)
+/**
+ * Retourne les données d'un pokémon en fonction de son idPokemon
+ * @param mixed $idPokemon
+ * @return false|array 
+ */
+function readPostAndMediaWithId($id)
 {
     static $ps = null;
-    $sql = 'SELECT idType, NomType';
-    $sql .= ' FROM pokedex.PokemonTypes';
-    $sql .= ' ORDER BY NomType ASC LIMIT :FROM,:OFFSET;';
+    $sql = 'SELECT m.idPost, m.nomMedia, p.commentaire';
+    $sql .= ' FROM m152.media as m, m152.post as p ';
+    $sql .= ' WHERE m.idPost = p.idPost AND p.idPost = :ID ';
 
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
     }
     $answer = false;
     try {
-        $ps->bindParam(':FROM', $from, PDO::PARAM_INT);
-        $ps->bindParam(':OFFSET', $offset, PDO::PARAM_INT);
-
+        $ps->bindParam(':ID', $id, PDO::PARAM_STR);
         if ($ps->execute())
             $answer = $ps->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
     return $answer;
+}
+
+/**
+ * Retourne les données d'un pokémon en fonction de son idPokemon
+ * @param mixed $idPokemon
+ * @return false|array 
+ */
+function getCountFromDifferentIdPost()
+{
+    static $ps = null;
+    $sql = 'SELECT m.idPost, count(*) ';
+    $sql .= ' FROM m152.media as m ';
+    $sql .= ' GROUP BY idPost;';
+
+    if ($ps == null) {
+        $ps = m152DB()->prepare($sql);
+    }
+    $answer = false;
+    try {
+        if ($ps->execute())
+            $answer = $ps->fetchAll(PDO::FETCH_KEY_PAIR);
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+    return $answer;
+}
+
+function PostAndMediaToCarousel()
+{
+    $html = "";
+    $array = getCountFromDifferentIdPost();
+    if (!empty($array)) {
+        // Chaque ligne
+        for ($i=1; $i < getLastId() + 1 ; $i++) 
+        {
+            $arrayImages = readPostAndMediaWithId($i);
+            $html .= "\n <div class=\"panel panel-default\">";
+            $html .= "\n <div id=\"my-pics\" class=\"carousel slide\" data-ride=\"carousel\" style=\"margin:auto;\">";
+
+            $html .= "\n <ol class=\"carousel-indicators\">";
+
+            for ($j=0 ; $j < $array["count(*)"] + 1 ; $j++ ) { 
+                $html .= "\n <li data-target=\"#my-pics$i\" data-slide-to=\"$i\" class=\"active\"></li>";
+            }
+
+            $html .= "\n </ol>";
+            $html .= "\n <div class=\"carousel-inner\" role=\"listbox\">";
+
+            for ($k=0; $k < $array["count(*)"] + 1; $k++) { 
+            $html .= "\n <div class=\"item active\">";
+            $html .= "\n <img src=\"img/".$arrayImages["nomMedia"]."\" alt=\"".$arrayImages["nomMedia"]."\">";
+            $html .= "\n </div>";
+            }
+            $html .= "\n </div>";
+
+            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics\" role=\"button\" data-slide=\"prev\">";
+            $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
+            $html .= "\n <span class=\"sr-only\">Previous</span>";
+            $html .= "\n </a>";
+
+            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics\" role=\"button\" data-slide=\"next\">";
+            $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
+            $html .= "\n <span class=\"sr-only\">Next</span>";
+            $html .= "\n </a>";
+
+            $html .= "\n </div>";
+            $html .= "\n <div class=\"panel-body\">";
+            $html .= "\n <hr>";
+            $html .= "\n " . $arrayImages["commentaire"];
+            $html .= "\n </div>";
+            $html .= "\n </div>";
+        }
+
+        
+    }
+    return $html;
 }
 
 /**
@@ -104,7 +181,6 @@ function createPost($commentaire, $creationDate)
     try {
         $ps->bindParam(':COMMENTAIRE', $commentaire, PDO::PARAM_STR);
         $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
-        //$ps->bindParam(':CREATIONDATE', $creationDate, date("Y-m-d H:i:s"));
         $answer = $ps->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
@@ -173,11 +249,11 @@ function deletePost($idPost)
  * @param mixed $creationDate  La date de création du média
  * @return bool true si réussi
  */
-function createMedia($typeMedia, $nomMedia, $creationDate)
+function createMedia($typeMedia, $nomMedia, $creationDate, $id)
 {
     static $ps = null;
-    $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`) ";
-    $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE)";
+    $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`, `idPost`) ";
+    $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE, :IDPOST)";
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
     }
@@ -186,6 +262,7 @@ function createMedia($typeMedia, $nomMedia, $creationDate)
         $ps->bindParam(':TYPEMEDIA', $typeMedia, PDO::PARAM_STR);
         $ps->bindParam(':NOMMEDIA', $nomMedia, PDO::PARAM_STR);
         $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
+        $ps->bindParam(':IDPOST', $id, PDO::PARAM_INT);
         $answer = $ps->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
@@ -247,4 +324,23 @@ function deleteMedia($idMedia)
         echo $e->getMessage();
     }
     return $answer;
+}
+
+function getLastId()
+{
+    static $ps = null;
+    $sql = 'SELECT MAX(idPost) ';
+    $sql .= 'FROM m152.post';
+    if ($ps == null) {
+        $ps = m152DB()->prepare($sql);
+    }
+    $answer = false;
+    try {
+        if ($ps->execute())
+            $answer = $ps->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+    //return $answer[0]["idPost"];
+    return $answer[0]["MAX(idPost)"];
 }
