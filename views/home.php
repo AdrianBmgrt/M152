@@ -29,7 +29,7 @@
 									<div class="panel-thumbnail"><img src="assets/img/bg_5.jpg" class="img-responsive">
 									</div>
 									<div class="panel-body">
-										<p class="lead">Blog d'Antoine</p>
+										<p class="lead">Blog d'Adrian</p>
 										<p>420 Followers, 69 Posts</p>
 										<p>
 											<img src="assets/img/uFp_tsTJboUY7kue5XAsGAs28.png" height="28px" width="28px">
@@ -55,7 +55,6 @@
 				</div><!-- /padding -->
 			</div>
 			<!-- /main -->
-
 		</div>
 	</div>
 	</div>

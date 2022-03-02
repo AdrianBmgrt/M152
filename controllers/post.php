@@ -12,15 +12,15 @@ switch ($action) {
     case 'submit':
         $nbFile = count($_FILES['imageFile']['name']);
         $target_dir = "img/"; // specifies the directory where the file is going to be placed
+        define('limitFileSize', 3 * 1024 * 1024);
         $uploadOk = 1;
-        if ($uploadOk == 1) {
-            createPost($commentaire, date("Y-m-d H:i:s"));
-        }
+        $uploadOkPost = 1;
         for ($i = 0; $i < $nbFile; $i++) {
 
             $target_file = $target_dir . basename($_FILES["imageFile"]["name"][$i]);
 
             $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+            $uniqueName = uniqid();
 
 
             // Check if image file is a actual image or fake image
@@ -35,34 +35,39 @@ switch ($action) {
                 }
             }
 
+            /*
             // Check if file already exists
             if (file_exists($target_file)) {
-                $message = "Sorry, file already exists.";
+                $message .= "Sorry, file already exists.";
                 $uploadOk = 0;
-            }
+            }*/
 
             // Check file size
-            if ($_FILES["imageFile"]["size"][$i] > 3000000) {
-                $message = "Sorry, your file is too large.";
+            if ($_FILES["imageFile"]["size"][$i] > limitFileSize) {
+                $message .= "Sorry, your file is too large.";
                 $uploadOk = 0;
             }
 
             // Allow certain file formats
             if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-                $message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+                $message .= "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
                 $uploadOk = 0;
             }
-
+            
             // Check if $uploadOk is set to 0 by an error
             if ($uploadOk == 0) {
-                $message = "Sorry, your file was not uploaded.";
+                $message .= "Sorry, your file was not uploaded.";
                 // if everything is ok, try to upload file
             } else {
-                if (move_uploaded_file($_FILES["imageFile"]["tmp_name"][$i], $target_file)) {
+                if ($uploadOkPost == 1 && $uploadOk == 1) {
+                    createPost($commentaire, date("Y-m-d H:i:s"));
+                    $uploadOkPost = 0;
+                }
+                if (move_uploaded_file($_FILES["imageFile"]["tmp_name"][$i], $target_dir . $uniqueName .".". $imageFileType)) {
                     $message .= "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"][$i])) . " has been uploaded.\n";
-                    createMedia($imageFileType, $_FILES["imageFile"]["name"][$i], date("Y-m-d H:i:s"), getLastId());
+                    createMedia($imageFileType, $uniqueName, date("Y-m-d H:i:s"), getLastId());
                 } else {
-                    $message = "Sorry, there was an error uploading your file.";
+                    $message .= "Sorry, there was an error uploading your file.";
                 }
             }
         }

@@ -22,7 +22,8 @@ function m152DB()
         try {
             $pokedexConnector = new PDO('mysql: ' . DBNAME . ';hostname= ' . HOSTNAME, DBUSER, PASSWORD, array(
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
-                PDO::ATTR_PERSISTENT => true
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ));
         } catch (PDOException $Exception) {
             // PHP Fatal Error. Second Argument Has To Be An Integer, But PDOException::getCode Returns A
@@ -34,7 +35,6 @@ function m152DB()
     }
     return $pokedexConnector;
 }
-
 
 /**
  * Retourne les données d'un pokémon en fonction de son idPokemon
@@ -62,7 +62,7 @@ function readAllPostAndMedia()
 }
 
 /**
- * Retourne les données d'un pokémon en fonction de son idPokemon
+ * Retourne les données d'une image en fonction de son idPokemon
  * @param mixed $idPokemon
  * @return false|array 
  */
@@ -118,47 +118,52 @@ function PostAndMediaToCarousel()
     $array = getCountFromDifferentIdPost();
     if (!empty($array)) {
         // Chaque ligne
-        for ($i=1; $i < getLastId() + 1 ; $i++) 
-        {
+        for ($i = 1; $i < getLastId() + 1; $i++) {
             $arrayImages = readPostAndMediaWithId($i);
             $html .= "\n <div class=\"panel panel-default\">";
-            $html .= "\n <div id=\"my-pics\" class=\"carousel slide\" data-ride=\"carousel\" style=\"margin:auto;\">";
+            $html .= "\n <div id=\"my-pics$i\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
 
             $html .= "\n <ol class=\"carousel-indicators\">";
 
-            for ($j=0 ; $j < $array["count(*)"] + 1 ; $j++ ) { 
+            for ($j = 1; $j < $array[$i]["count(*)"] + 1; $j++) {
                 $html .= "\n <li data-target=\"#my-pics$i\" data-slide-to=\"$i\" class=\"active\"></li>";
             }
 
             $html .= "\n </ol>";
             $html .= "\n <div class=\"carousel-inner\" role=\"listbox\">";
 
-            for ($k=0; $k < $array["count(*)"] + 1; $k++) { 
-            $html .= "\n <div class=\"item active\">";
-            $html .= "\n <img src=\"img/".$arrayImages["nomMedia"]."\" alt=\"".$arrayImages["nomMedia"]."\">";
-            $html .= "\n </div>";
+            for ($k = 0; $k < $array[$i]["count(*)"]; $k++) {
+                if ($k == 0) {
+                    $html .= "\n <div class=\"item active\">";
+                } else {
+                    $html .= "\n <div class=\"item\">";
+                }
+                $html .= "\n <img src=\"img/" . $arrayImages[$k]["nomMedia"] . "\" alt=\"" . $arrayImages[$k]["nomMedia"] . "\">";
+                $html .= "\n </div>";
             }
             $html .= "\n </div>";
 
-            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics\" role=\"button\" data-slide=\"prev\">";
+            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"prev\">";
             $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
             $html .= "\n <span class=\"sr-only\">Previous</span>";
             $html .= "\n </a>";
 
-            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics\" role=\"button\" data-slide=\"next\">";
+            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
             $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
             $html .= "\n <span class=\"sr-only\">Next</span>";
             $html .= "\n </a>";
 
             $html .= "\n </div>";
+
             $html .= "\n <div class=\"panel-body\">";
             $html .= "\n <hr>";
-            $html .= "\n " . $arrayImages["commentaire"];
+            $html .= "\n " . $arrayImages[0]["commentaire"];
+            $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n <a><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
             $html .= "\n </div>";
+
             $html .= "\n </div>";
         }
-
-        
     }
     return $html;
 }
@@ -254,6 +259,7 @@ function createMedia($typeMedia, $nomMedia, $creationDate, $id)
     static $ps = null;
     $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`, `idPost`) ";
     $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE, :IDPOST)";
+    //$ps = m152DB()->beginTransaction();
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
     }
@@ -264,8 +270,11 @@ function createMedia($typeMedia, $nomMedia, $creationDate, $id)
         $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
         $ps->bindParam(':IDPOST', $id, PDO::PARAM_INT);
         $answer = $ps->execute();
+        //$ps = m152DB()->commit();
+
     } catch (PDOException $e) {
         echo $e->getMessage();
+        //$ps = m152DB()->rollBack();
     }
     return $answer;
 }
