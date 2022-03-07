@@ -48,14 +48,20 @@
 										</div>
 									</form>
 								</div>
-								<?= PostAndMediaToCarousel() ?>
+
+								<?php echo PostAndMediaToCarousel() ?>
+
+
+
 							</div>
+
 						</div>
 					</div>
-				</div><!-- /padding -->
-			</div>
-			<!-- /main -->
+				</div>
+			</div><!-- /padding -->
 		</div>
+		<!-- /main -->
+	</div>
 	</div>
 	</div>
 

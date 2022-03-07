@@ -44,17 +44,21 @@ switch ($action) {
                 $uploadOk = 0;
             }*/
 
+            /*
             // Check file size
             if ($_FILES["imageFile"]["size"][$i] > limitFileSize) {
                 $message .= "Sorry, your file is too large.";
                 $uploadOk = 0;
             }
+            */
 
+            /*
             // Allow certain file formats
             if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
                 $message .= "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
                 $uploadOk = 0;
             }
+            */
             
             // Check if $uploadOk is set to 0 by an error
             if ($uploadOk == 0) {
@@ -78,4 +82,6 @@ require("views/header.php");
 require("views/post.php");
 
 require("views/footer.php");
+
+var_dump($_FILES);
 ?>

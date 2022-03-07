@@ -44,9 +44,10 @@ function m152DB()
 function readAllPostAndMedia()
 {
     static $ps = null;
-    $sql = 'SELECT m.idPost, m.nomMedia, p.commentaire';
+    $sql = 'SELECT m.idPost, m.nomMedia, p.commentaire, m.creationDate';
     $sql .= ' FROM m152.media as m, m152.post as p ';
     $sql .= ' WHERE p.idPost = m.idPost ';
+    $sql .= ' ORDER BY m.creationDate DESC';
 
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
@@ -69,9 +70,9 @@ function readAllPostAndMedia()
 function readPostAndMediaWithId($id)
 {
     static $ps = null;
-    $sql = 'SELECT m.idPost, m.nomMedia, p.commentaire';
-    $sql .= ' FROM m152.media as m, m152.post as p ';
-    $sql .= ' WHERE m.idPost = p.idPost AND p.idPost = :ID ';
+    $sql = 'SELECT m.idPost, m.nomMedia, m.typeMedia, p.commentaire ';
+    $sql .= 'FROM m152.media as m, m152.post as p ';
+    $sql .= 'WHERE m.idPost = p.idPost AND p.idPost = :ID ';
 
     if ($ps == null) {
         $ps = m152DB()->prepare($sql);
@@ -112,14 +113,79 @@ function getCountFromDifferentIdPost()
     return $answer;
 }
 
+/*
 function PostAndMediaToCarousel()
 {
     $html = "";
     $array = getCountFromDifferentIdPost();
     if (!empty($array)) {
         // Chaque ligne
-        for ($i = 1; $i < getLastId() + 1; $i++) {
-            $arrayImages = readPostAndMediaWithId($i);
+        for ($i = getLastId(); $i > 0; $i--) {
+            $arrayMedia = readPostAndMediaWithId($i);
+
+            for ($k = 0; $k < $array[$i]["count(*)"]; $k++) {
+                var_dump($arrayMedia[$k]["typeMedia"]);
+
+                if ($arrayMedia[$k]["typeMedia"] == "mp4" || $arrayMedia[$k]["typeMedia"] == "m4v") {
+                    $html .= "\n <video width=\"100%\" height=\"100%\" autoplay muted loop>";
+                    $html .= "\n <source src=\"" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
+                    $html .= "\n </video>";
+                }
+                if ($arrayMedia[$k]["typeMedia"] == "png" || $arrayMedia[$k]["typeMedia"] == "jpg" || $arrayMedia[$k]["typeMedia"] == "jpeg" || $arrayMedia[$k]["typeMedia"] == "gif" || $arrayMedia[$k]["typeMedia"] == "jpg") {
+                    $html .= "\n <div class=\"panel panel-default\">";
+                    $html .= "\n <div id=\"my-pics$k\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
+
+                    $html .= "\n <ol class=\"carousel-indicators\">";
+
+                        $html .= "\n <li data-target=\"#my-pics$k\" data-slide-to=\"$k\" class=\"active\"></li>";
+
+                    $html .= "\n </ol>";
+                    $html .= "\n <div class=\"carousel-inner\" role=\"listbox\">";
+
+                        if ($k == 0) {
+                            $html .= "\n <div class=\"item active\">";
+                        } else {
+                            $html .= "\n <div class=\"item\">";
+                        }
+                        $html .= "\n <img src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" alt=\"" . $arrayMedia[$k]["nomMedia"] . "\">";
+                        $html .= "\n </div>";
+                    $html .= "\n </div>";
+                }
+            }
+            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"prev\">";
+            $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
+            $html .= "\n <span class=\"sr-only\">Previous</span>";
+            $html .= "\n </a>";
+
+            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
+            $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
+            $html .= "\n <span class=\"sr-only\">Next</span>";
+            $html .= "\n </a>";
+
+            $html .= "\n </div>";
+
+            $html .= "\n <div class=\"panel-body\">";
+            $html .= "\n <hr>";
+            $html .= "\n " . $arrayMedia[0]["commentaire"];
+            $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n <a><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n </div>";
+
+            $html .= "\n </div>";
+        }
+    }
+    return $html;
+}
+*/
+
+function PostAndMediaToCarousel()
+{
+    $html = "";
+    $array = getCountFromDifferentIdPost();
+    if (!empty($array)) {
+        // Chaque ligne
+        for ($i = getLastId(); $i > 0; $i--) {
+            $arrayMedia = readPostAndMediaWithId($i);
             $html .= "\n <div class=\"panel panel-default\">";
             $html .= "\n <div id=\"my-pics$i\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
 
@@ -138,8 +204,16 @@ function PostAndMediaToCarousel()
                 } else {
                     $html .= "\n <div class=\"item\">";
                 }
-                $html .= "\n <img src=\"img/" . $arrayImages[$k]["nomMedia"] . "\" alt=\"" . $arrayImages[$k]["nomMedia"] . "\">";
-                $html .= "\n </div>";
+                if ($arrayMedia[$k]["typeMedia"] == "mp4" || $arrayMedia[$k]["typeMedia"] == "m4v") {
+                    $html .= "\n <video width=\"100%\" height=\"100%\" autoplay loop controls>";
+                    $html .= "\n <source src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
+                    $html .= "\n </video>";
+                    $html .= "\n </div>";
+                }
+                if ($arrayMedia[$k]["typeMedia"] == "png" || $arrayMedia[$k]["typeMedia"] == "jpg" || $arrayMedia[$k]["typeMedia"] == "jpeg" || $arrayMedia[$k]["typeMedia"] == "gif" || $arrayMedia[$k]["typeMedia"] == "jpg") {
+                    $html .= "\n <img src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" alt=\"" . $arrayMedia[$k]["nomMedia"] . "\">";
+                    $html .= "\n </div>";
+                }
             }
             $html .= "\n </div>";
 
@@ -157,7 +231,7 @@ function PostAndMediaToCarousel()
 
             $html .= "\n <div class=\"panel-body\">";
             $html .= "\n <hr>";
-            $html .= "\n " . $arrayImages[0]["commentaire"];
+            $html .= "\n " . $arrayMedia[0]["commentaire"];
             $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
             $html .= "\n <a><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
             $html .= "\n </div>";
@@ -167,6 +241,7 @@ function PostAndMediaToCarousel()
     }
     return $html;
 }
+
 
 /**
  * Met à jour une note existante 
@@ -255,7 +330,6 @@ function createMediaAndPost($typeMedia, $nomMedia, $creationDate, $commentaire, 
         $ps->bindParam(':IDPOST', getLastId(), PDO::PARAM_INT);
         $answer = $ps->execute();
         $ps->close;
-
 
         m152DB()->commit();
     } catch (PDOException $e) {
