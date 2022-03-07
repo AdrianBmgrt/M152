@@ -13,6 +13,7 @@ switch ($action) {
         $nbFile = count($_FILES['imageFile']['name']);
         $target_dir = "img/"; // specifies the directory where the file is going to be placed
         define('limitFileSize', 3 * 1024 * 1024);
+        $alreadyLoop = 0;
         $uploadOk = 1;
         $uploadOkPost = 1;
         
@@ -60,13 +61,10 @@ switch ($action) {
                 $message .= "Sorry, your file was not uploaded.";
                 // if everything is ok, try to upload file
             } else {
-                if ($uploadOkPost == 1 && $uploadOk == 1) {
-                    createPost($commentaire, date("Y-m-d H:i:s"));
-                    $uploadOkPost = 0;
-                }
                 if (move_uploaded_file($_FILES["imageFile"]["tmp_name"][$i], $target_dir . $uniqueName)) {
                     $message .= "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"][$i])) . " has been uploaded.\n";
-                    createMedia($imageFileType, $uniqueName , date("Y-m-d H:i:s"), getLastId());
+                    createMediaAndPost($imageFileType, $uniqueName , date("Y-m-d H:i:s"), $commentaire, $alreadyLoop);
+                    $alreadyLoop = 1;
                 } else {
                     $message .= "Sorry, there was an error uploading your file.";
                 }

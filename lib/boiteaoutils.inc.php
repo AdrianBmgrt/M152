@@ -169,31 +169,6 @@ function PostAndMediaToCarousel()
 }
 
 /**
- * Ajoute une nouvelle post avec ses paramètres
- * @param mixed $commentaire Commentaire du post
- * @param mixed $creationDate  La date de création du post
- * @return bool true si réussi
- */
-function createPost($commentaire, $creationDate)
-{
-    static $ps = null;
-    $sql = "INSERT INTO `m152`.`post` (`commentaire`, `creationDate`) ";
-    $sql .= "VALUES (:COMMENTAIRE, :CREATIONDATE)";
-    if ($ps == null) {
-        $ps = m152DB()->prepare($sql);
-    }
-    $answer = false;
-    try {
-        $ps->bindParam(':COMMENTAIRE', $commentaire, PDO::PARAM_STR);
-        $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
-        $answer = $ps->execute();
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-    }
-    return $answer;
-}
-
-/**
  * Met à jour une note existante 
  * @param mixed $idPost
  * @param mixed $commentaire
@@ -254,27 +229,38 @@ function deletePost($idPost)
  * @param mixed $creationDate  La date de création du média
  * @return bool true si réussi
  */
-function createMedia($typeMedia, $nomMedia, $creationDate, $id)
+function createMediaAndPost($typeMedia, $nomMedia, $creationDate, $commentaire, $alreadyLoop)
 {
     static $ps = null;
-    $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`, `idPost`) ";
-    $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE, :IDPOST)";
-    //$ps = m152DB()->beginTransaction();
-    if ($ps == null) {
-        $ps = m152DB()->prepare($sql);
-    }
     $answer = false;
     try {
+        m152DB()->beginTransaction();
+
+        if ($alreadyLoop == 0) {
+            $sql = "INSERT INTO `m152`.`post` (`commentaire`, `creationDate`) ";
+            $sql .= "VALUES (:COMMENTAIRE, :CREATIONDATE)";
+            $ps = m152DB()->prepare($sql);
+            $ps->bindParam(':COMMENTAIRE', $commentaire, PDO::PARAM_STR);
+            $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
+            $answer = $ps->execute();
+            $ps->close;
+        }
+
+        $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`, `idPost`) ";
+        $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE, :IDPOST)";
+        $ps = m152DB()->prepare($sql);
         $ps->bindParam(':TYPEMEDIA', $typeMedia, PDO::PARAM_STR);
         $ps->bindParam(':NOMMEDIA', $nomMedia, PDO::PARAM_STR);
         $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
-        $ps->bindParam(':IDPOST', $id, PDO::PARAM_INT);
+        $ps->bindParam(':IDPOST', getLastId(), PDO::PARAM_INT);
         $answer = $ps->execute();
-        //$ps = m152DB()->commit();
+        $ps->close;
 
+
+        m152DB()->commit();
     } catch (PDOException $e) {
         echo $e->getMessage();
-        //$ps = m152DB()->rollBack();
+        m152DB()->rollBack();
     }
     return $answer;
 }
