@@ -113,71 +113,6 @@ function getCountFromDifferentIdPost()
     return $answer;
 }
 
-/*
-function PostAndMediaToCarousel()
-{
-    $html = "";
-    $array = getCountFromDifferentIdPost();
-    if (!empty($array)) {
-        // Chaque ligne
-        for ($i = getLastId(); $i > 0; $i--) {
-            $arrayMedia = readPostAndMediaWithId($i);
-
-            for ($k = 0; $k < $array[$i]["count(*)"]; $k++) {
-                var_dump($arrayMedia[$k]["typeMedia"]);
-
-                if ($arrayMedia[$k]["typeMedia"] == "mp4" || $arrayMedia[$k]["typeMedia"] == "m4v") {
-                    $html .= "\n <video width=\"100%\" height=\"100%\" autoplay muted loop>";
-                    $html .= "\n <source src=\"" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
-                    $html .= "\n </video>";
-                }
-                if ($arrayMedia[$k]["typeMedia"] == "png" || $arrayMedia[$k]["typeMedia"] == "jpg" || $arrayMedia[$k]["typeMedia"] == "jpeg" || $arrayMedia[$k]["typeMedia"] == "gif" || $arrayMedia[$k]["typeMedia"] == "jpg") {
-                    $html .= "\n <div class=\"panel panel-default\">";
-                    $html .= "\n <div id=\"my-pics$k\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
-
-                    $html .= "\n <ol class=\"carousel-indicators\">";
-
-                        $html .= "\n <li data-target=\"#my-pics$k\" data-slide-to=\"$k\" class=\"active\"></li>";
-
-                    $html .= "\n </ol>";
-                    $html .= "\n <div class=\"carousel-inner\" role=\"listbox\">";
-
-                        if ($k == 0) {
-                            $html .= "\n <div class=\"item active\">";
-                        } else {
-                            $html .= "\n <div class=\"item\">";
-                        }
-                        $html .= "\n <img src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" alt=\"" . $arrayMedia[$k]["nomMedia"] . "\">";
-                        $html .= "\n </div>";
-                    $html .= "\n </div>";
-                }
-            }
-            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"prev\">";
-            $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
-            $html .= "\n <span class=\"sr-only\">Previous</span>";
-            $html .= "\n </a>";
-
-            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
-            $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
-            $html .= "\n <span class=\"sr-only\">Next</span>";
-            $html .= "\n </a>";
-
-            $html .= "\n </div>";
-
-            $html .= "\n <div class=\"panel-body\">";
-            $html .= "\n <hr>";
-            $html .= "\n " . $arrayMedia[0]["commentaire"];
-            $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
-            $html .= "\n <a><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
-            $html .= "\n </div>";
-
-            $html .= "\n </div>";
-        }
-    }
-    return $html;
-}
-*/
-
 function PostAndMediaToCarousel()
 {
     $html = "";
@@ -241,8 +176,8 @@ function PostAndMediaToCarousel()
             $html .= "\n <div class=\"panel-body\">";
             $html .= "\n <hr>";
             $html .= "\n " . $arrayMedia[0]["commentaire"];
-            $html .= "\n <a ><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
-            $html .= "\n <a><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n <a href=\"#postModal$i\" role=\"button\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
             $html .= "\n </div>";
 
             $html .= "\n </div>";
@@ -283,28 +218,7 @@ function updatePost($idPost, $commentaire, $modificationDate)
     return $answer;
 }
 
-/**
- * Supprime la post avec l'id $idPost.
- * @param mixed $idPost
- * @return bool 
- */
-function deletePost($idPost)
-{
-    static $ps = null;
-    $sql = "DELETE FROM `m152`.`post` WHERE (`idPost` = :IDPOST);";
-    if ($ps == null) {
-        $ps = m152DB()->prepare($sql);
-    }
-    $answer = false;
-    try {
-        $ps->bindParam(':IDPOST', $idPost, PDO::PARAM_INT);
-        $ps->execute();
-        $answer = ($ps->rowCount() > 0);
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-    }
-    return $answer;
-}
+
 
 /**
  * Ajoute une nouvelle média avec ses paramètres
@@ -382,24 +296,36 @@ function updateMedia($idMedia, $typeMedia, $nomMedia, $modificationDate)
 }
 
 /**
- * Supprime la note avec l'id $idMedia.
+ * Supprime le post aet les images inclus du post avec l'id $idMedia et $idPost.
  * @param mixed $idMedia
+ * @param mixed $idPost
  * @return bool 
  */
-function deleteMedia($idMedia)
+function DeleteMediaAndPost($idPost, $idMedia, $alreadyDeleted)
 {
     static $ps = null;
-    $sql = "DELETE FROM `m152`.`media` WHERE (`idMedia` = :IDMEDIA);";
-    if ($ps == null) {
-        $ps = m152DB()->prepare($sql);
-    }
     $answer = false;
     try {
+        m152DB()->beginTransaction();
+
+        if ($alreadyDeleted == 0) {
+            $sql = "DELETE FROM `m152`.`post` WHERE (`idPost` = :IDPOST);";
+            $ps = m152DB()->prepare($sql);
+            $ps->bindParam(':IDPOST', $idPost, PDO::PARAM_INT);
+            $answer = $ps->execute();
+            $ps->close;
+        }
+
+        $sql = "DELETE FROM `m152`.`media` WHERE (`idMedia` = :IDMEDIA);";
+        $ps = m152DB()->prepare($sql);
         $ps->bindParam(':IDMEDIA', $idMedia, PDO::PARAM_INT);
-        $ps->execute();
-        $answer = ($ps->rowCount() > 0);
+        $answer = $ps->execute();
+        $ps->close;
+
+        m152DB()->commit();
     } catch (PDOException $e) {
         echo $e->getMessage();
+        m152DB()->rollBack();
     }
     return $answer;
 }
