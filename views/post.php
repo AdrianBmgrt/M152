@@ -32,7 +32,7 @@
 								</div>
 								<div class="form-group">
 									<label for="imageFile">Image :</label>
-									<input type="file" class="form-control-file" id="imageFile" name="imageFile[]" accept="image/png, image/gif, image/jpeg, video/mp4, video/x-m4v, video/*" multiple/>
+									<input type="file" class="form-control-file" id="imageFile" name="imageFile[]" accept="image/png, image/gif, image/jpeg, video/mp4, video/x-m4v, video/*, audio/mp3, audio/* " multiple/>
 								</div>
 								<button type="submit" name="action" value="submit" class="btn btn-primary">Submit</button>
 							</div>

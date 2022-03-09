@@ -200,9 +200,9 @@ function PostAndMediaToCarousel()
 
             for ($k = 0; $k < $array[$i]["count(*)"]; $k++) {
                 if ($k == 0) {
-                    $html .= "\n <div class=\"item active\">";
+                    $html .= "\n <div align=\"center\" class=\"item active\">";
                 } else {
-                    $html .= "\n <div class=\"item\">";
+                    $html .= "\n <div align=\"center\" class=\"item\">";
                 }
                 if ($arrayMedia[$k]["typeMedia"] == "mp4" || $arrayMedia[$k]["typeMedia"] == "m4v") {
                     $html .= "\n <video width=\"100%\" height=\"100%\" autoplay loop controls>";
@@ -214,25 +214,34 @@ function PostAndMediaToCarousel()
                     $html .= "\n <img src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" alt=\"" . $arrayMedia[$k]["nomMedia"] . "\">";
                     $html .= "\n </div>";
                 }
+
+                if ($arrayMedia[$k]["typeMedia"] == "mp3" || $arrayMedia[$k]["typeMedia"] == "wav" || $arrayMedia[$k]["typeMedia"] == "ogg") {
+                    $html .= "\n <audio controls autoplay";
+                    $html .= "\n <source src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
+                    $html .= "\n </audio>";
+                    $html .= "\n </div>";
+                }
             }
             $html .= "\n </div>";
 
-            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"prev\">";
-            $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
-            $html .= "\n <span class=\"sr-only\">Previous</span>";
-            $html .= "\n </a>";
-
-            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
-            $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
-            $html .= "\n <span class=\"sr-only\">Next</span>";
-            $html .= "\n </a>";
+            if ($array[$i]["count(*)"] > 1) {
+                $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"prev\">";
+                $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
+                $html .= "\n <span class=\"sr-only\">Previous</span>";
+                $html .= "\n </a>";
+    
+                $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
+                $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
+                $html .= "\n <span class=\"sr-only\">Next</span>";
+                $html .= "\n </a>";
+            }
 
             $html .= "\n </div>";
 
             $html .= "\n <div class=\"panel-body\">";
             $html .= "\n <hr>";
             $html .= "\n " . $arrayMedia[0]["commentaire"];
-            $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n <a ><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
             $html .= "\n <a><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
             $html .= "\n </div>";
 
