@@ -164,7 +164,7 @@ function PostAndMediaToCarousel()
                 $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
                 $html .= "\n <span class=\"sr-only\">Previous</span>";
                 $html .= "\n </a>";
-    
+
                 $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
                 $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
                 $html .= "\n <span class=\"sr-only\">Next</span>";
@@ -330,6 +330,10 @@ function DeleteMediaAndPost($idPost, $idMedia, $alreadyDeleted)
     return $answer;
 }
 
+/**
+ * Retourne le nombre maximal du nombre de post
+ * @return answer
+ */
 function getLastId()
 {
     static $ps = null;
@@ -347,4 +351,43 @@ function getLastId()
     }
     //return $answer[0]["idPost"];
     return $answer[0]["MAX(idPost)"];
+}
+
+/**
+ * Génere un Post Modal par rapport au nombre de posts
+ * @return $html 
+ */
+function GeneratePostModalBasedOnNbOfPost()
+{
+    $html = "";
+    for ($i = 1; $i <= getLastId(); $i++) {
+        $html .= "\n <form action=\"deletePostAndMedia.php?id=$i\" method=\"get\">";
+        $html .= "\n <div id=\"postModal$i\" class=\"modal fade\" tabindex=\"-1\" role=\"dialog\" aria-hidden=\"true\">";
+        $html .= "\n <div class=\"modal-dialog\">";
+        $html .= "\n <div class=\"modal-content\">";
+        $html .= "\n <div class=\"modal-header\">";
+        $html .= "\n Delete post ?";
+        $html .= "\n </div>";
+        $html .= "\n <div class=\"modal-body\">";
+        $html .= "\n <form class=\"form center-block\">";
+        $html .= "\n <div class=\"form-group\">";
+        $html .= "\n <textarea class=\"form-control input-lg\" autofocus=\"\" readonly>Are you sure that you want to delete this post ?</textarea>";
+        $html .= "\n </div>";
+        $html .= "\n </form>";
+        $html .= "\n </div>";
+        $html .= "\n <div class=\"modal-footer\">";
+        $html .= "\n <div>";
+
+        $html .= "\n <input id=\"id\" name=\"id\" type=\"hidden\" value=\"$i\">";
+
+        $html .= "\n <button class=\"btn btn-primary btn-sm\" data-dismiss=\"modal\" aria-hidden=\"true\">Yes</button>";
+        $html .= "\n <button class=\"btn btn-primary btn-sm\" data-dismiss=\"modal\" aria-hidden=\"true\">No</button>";
+        $html .= "\n </div>";
+        $html .= "\n </div>";
+        $html .= "\n </div>";
+        $html .= "\n </div>";
+        $html .= "\n </div>";
+        $html .= "\n </form>";
+    }
+    return $html;
 }

@@ -20,11 +20,11 @@
 				</div>
 				<!-- /top nav -->
 				<div class="padding">
-					<div class="full col-sm-9">
+					<div class="full col-sm-12">
 						<!-- content -->
 						<div class="row">
 							<!-- main col left -->
-							<div class="col-sm-5">
+							<div class="col-sm-3">
 								<div class="panel panel-default">
 									<div class="panel-thumbnail"><img src="assets/img/bg_5.jpg" class="img-responsive">
 									</div>
@@ -39,7 +39,7 @@
 							</div>
 
 							<!-- main col right -->
-							<div class="col-sm-7">
+							<div class="col-sm-9">
 
 								<div class="well">
 									<form class="form">
@@ -59,29 +59,32 @@
 	</div>
 	</div>
 	</div>
-		<!--post modal-->
-		<div id="postModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-		  <div class="modal-dialog">
-		  <div class="modal-content">
-			  <div class="modal-header">
-					Delete post ?
-			  </div>
-			  <div class="modal-body">
-				  <form class="form center-block">
-					<div class="form-group">
-					  <textarea class="form-control input-lg" autofocus="" readonly>Are you sure that you want to delete this post ?</textarea>
+	<!--post modal-->
+	<form action="deletePostAndMedia.php" method="POST">
+		<div id="postModal1" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						Delete post ?
 					</div>
-				  </form>
-			  </div>
-			  <div class="modal-footer">
-				  <div>
-				  <button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Yes</button>
-				  <button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">No</button>
-				  </div>	
-			  </div>
-		  </div>
-		  </div>
+					<div class="modal-body">
+						<form class="form center-block">
+							<div class="form-group">
+								<textarea class="form-control input-lg" autofocus="" readonly>Are you sure that you want to delete this post ?</textarea>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<div>
+						<input id="prodId" name="prodId" type="hidden" value="xm234jq">
+							<button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Yes</button>
+							<button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+	</form>
 	<script type="text/javascript" src="assets/js/jquery.js"></script>
 	<script type="text/javascript" src="assets/js/bootstrap.js"></script>
 	<script type="text/javascript">

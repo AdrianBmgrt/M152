@@ -18,7 +18,7 @@
 					require("nav.php");
 					?>
 				</div>
-				<form action="#" method="post" enctype="multipart/form-data">
+				<form action="" method="POST" enctype="multipart/form-data">
 				<!-- /top nav -->
 				<div class="padding">
 					<div class="full col-sm-9">
@@ -34,7 +34,7 @@
 									<label for="imageFile">Image :</label>
 									<input type="file" class="form-control-file" id="imageFile" name="imageFile[]" accept="image/png, image/gif, image/jpeg, video/mp4, video/x-m4v, video/*, audio/mp3, audio/* " multiple/>
 								</div>
-								<button type="submit" name="action" value="submit" class="btn btn-primary">Submit</button>
+								<input type="submit" name="action" value="submit" class="btn btn-primary">
 							</div>
 							<?= $message ?>
 						</div>

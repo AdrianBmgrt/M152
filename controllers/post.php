@@ -69,10 +69,13 @@ switch ($action) {
                     $message .= "The file " . htmlspecialchars(basename($_FILES["imageFile"]["name"][$i])) . " has been uploaded.\n";
                     createMediaAndPost($imageFileType, $uniqueName , date("Y-m-d H:i:s"), $commentaire, $alreadyLoop);
                     $alreadyLoop = 1;
+                    header('Location : ?action=home');
+
                 } else {
                     $message .= "Sorry, there was an error uploading your file.";
                 }
             }
+
         }
         break;
 }
@@ -84,4 +87,3 @@ require("views/post.php");
 require("views/footer.php");
 
 var_dump($_FILES);
-?>
