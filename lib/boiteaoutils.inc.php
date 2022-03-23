@@ -36,11 +36,6 @@ function m152DB()
     return $pokedexConnector;
 }
 
-/**
- * Retourne les données d'un pokémon en fonction de son idPokemon
- * @param mixed $idPokemon
- * @return false|array 
- */
 function readAllPostAndMedia()
 {
     static $ps = null;
@@ -62,11 +57,6 @@ function readAllPostAndMedia()
     return $answer;
 }
 
-/**
- * Retourne les données d'une image en fonction de son idPokemon
- * @param mixed $idPokemon
- * @return false|array 
- */
 function readPostAndMediaWithId($id)
 {
     static $ps = null;
@@ -88,11 +78,6 @@ function readPostAndMediaWithId($id)
     return $answer;
 }
 
-/**
- * Retourne les données d'un pokémon en fonction de son idPokemon
- * @param mixed $idPokemon
- * @return false|array 
- */
 function getCountFromDifferentIdPost()
 {
     static $ps = null;
@@ -119,15 +104,17 @@ function PostAndMediaToCarousel()
     $array = getCountFromDifferentIdPost();
     if (!empty($array)) {
         // Chaque ligne
-        for ($i = getLastId(); $i > 0; $i--) {
+        for ($i = countIdPost(); $i >= getFirstId(); $i--) {
             $arrayMedia = readPostAndMediaWithId($i);
+            var_dump($arrayMedia[0]["idPost"]);
+            $id = $arrayMedia[0]["idPost"];
             $html .= "\n <div class=\"panel panel-default\">";
-            $html .= "\n <div id=\"my-pics$i\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
+            $html .= "\n <div id=\"my-pics$id\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
 
             $html .= "\n <ol class=\"carousel-indicators\">";
 
             for ($j = 1; $j < $array[$i]["count(*)"] + 1; $j++) {
-                $html .= "\n <li data-target=\"#my-pics$i\" data-slide-to=\"$i\" class=\"active\"></li>";
+                $html .= "\n <li data-target=\"#my-pics$id\" data-slide-to=\"$id\" class=\"active\"></li>";
             }
 
             $html .= "\n </ol>";
@@ -160,12 +147,12 @@ function PostAndMediaToCarousel()
             $html .= "\n </div>";
 
             if ($array[$i]["count(*)"] > 1) {
-                $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"prev\">";
+                $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$id\" role=\"button\" data-slide=\"prev\">";
                 $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
                 $html .= "\n <span class=\"sr-only\">Previous</span>";
                 $html .= "\n </a>";
 
-                $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$i\" role=\"button\" data-slide=\"next\">";
+                $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$id\" role=\"button\" data-slide=\"next\">";
                 $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
                 $html .= "\n <span class=\"sr-only\">Next</span>";
                 $html .= "\n </a>";
@@ -177,7 +164,7 @@ function PostAndMediaToCarousel()
             $html .= "\n <hr>";
             $html .= "\n " . $arrayMedia[0]["commentaire"];
             $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
-            $html .= "\n <a href=\"#postModal$i\" role=\"button\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
+            $html .= "\n <a href=\"?action=delete&id=".$id."\" role=\"button\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
             $html .= "\n </div>";
 
             $html .= "\n </div>";
@@ -227,33 +214,37 @@ function updatePost($idPost, $commentaire, $modificationDate)
  * @param mixed $creationDate  La date de création du média
  * @return bool true si réussi
  */
-function createMediaAndPost($typeMedia, $nomMedia, $creationDate, $commentaire, $alreadyLoop)
+function createMediaAndPost($creationDate, $commentaire, $array)
 {
     static $ps = null;
     $answer = false;
+    $target_dir = "img/"; // specifies the directory where the file is going to be placed
     try {
         m152DB()->beginTransaction();
 
-        if ($alreadyLoop == 0) {
-            $sql = "INSERT INTO `m152`.`post` (`commentaire`, `creationDate`) ";
-            $sql .= "VALUES (:COMMENTAIRE, :CREATIONDATE)";
-            $ps = m152DB()->prepare($sql);
-            $ps->bindParam(':COMMENTAIRE', $commentaire, PDO::PARAM_STR);
-            $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
-            $answer = $ps->execute();
-            $ps->close;
-        }
-
-        $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`, `idPost`) ";
-        $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE, :IDPOST)";
+        $sql = "INSERT INTO `m152`.`post` (`commentaire`, `creationDate`) ";
+        $sql .= "VALUES (:COMMENTAIRE, :CREATIONDATE)";
         $ps = m152DB()->prepare($sql);
-        $ps->bindParam(':TYPEMEDIA', $typeMedia, PDO::PARAM_STR);
-        $ps->bindParam(':NOMMEDIA', $nomMedia, PDO::PARAM_STR);
+        $ps->bindParam(':COMMENTAIRE', $commentaire, PDO::PARAM_STR);
         $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
-        $ps->bindParam(':IDPOST', getLastId(), PDO::PARAM_INT);
         $answer = $ps->execute();
         $ps->close;
 
+        for ($i = 0; $i < count($array["imageFile"]["name"]); $i++) {
+            $target_file = $target_dir . basename($array["imageFile"]["name"][$i]);
+            $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+            $uniqueName = uniqid() . "." . $imageFileType;
+            $sql = "INSERT INTO `m152`.`media` (`typeMedia`, `nomMedia`, `creationDate`, `idPost`) ";
+            $sql .= "VALUES (:TYPEMEDIA, :NOMMEDIA, :CREATIONDATE, :IDPOST)";
+            $ps = m152DB()->prepare($sql);
+            $ps->bindParam(':TYPEMEDIA', $imageFileType, PDO::PARAM_STR);
+            $ps->bindParam(':NOMMEDIA', $uniqueName, PDO::PARAM_STR);
+            $ps->bindParam(':CREATIONDATE', $creationDate, PDO::PARAM_STR);
+            $ps->bindParam(':IDPOST', getLastId(), PDO::PARAM_INT);
+            $answer = $ps->execute();
+            move_uploaded_file($array["imageFile"]["tmp_name"][$i], $target_dir . $uniqueName);
+        }
+        $ps->close;
         m152DB()->commit();
     } catch (PDOException $e) {
         echo $e->getMessage();
@@ -296,31 +287,41 @@ function updateMedia($idMedia, $typeMedia, $nomMedia, $modificationDate)
 }
 
 /**
- * Supprime le post aet les images inclus du post avec l'id $idMedia et $idPost.
+ * Supprime le post et les images inclus du post avec l'id $idMedia et $idPost.
  * @param mixed $idMedia
  * @param mixed $idPost
  * @return bool 
  */
-function DeleteMediaAndPost($idPost, $idMedia, $alreadyDeleted)
+function DeleteMediaAndPost($idPost)
 {
     static $ps = null;
     $answer = false;
+    $array = "";
     try {
         m152DB()->beginTransaction();
 
-        if ($alreadyDeleted == 0) {
-            $sql = "DELETE FROM `m152`.`post` WHERE (`idPost` = :IDPOST);";
-            $ps = m152DB()->prepare($sql);
-            $ps->bindParam(':IDPOST', $idPost, PDO::PARAM_INT);
-            $answer = $ps->execute();
-            $ps->close;
-        }
-
-        $sql = "DELETE FROM `m152`.`media` WHERE (`idMedia` = :IDMEDIA);";
+        $sql = 'SELECT m.nomMedia ';
+        $sql .= 'FROM m152.media as m ';
+        $sql .= 'WHERE m.idPost = ' . $idPost ;
         $ps = m152DB()->prepare($sql);
-        $ps->bindParam(':IDMEDIA', $idMedia, PDO::PARAM_INT);
+        $array = $ps->execute();
+        $array = $ps->fetchAll(PDO::FETCH_ASSOC);
+        for ($i=0; $i < count($array) ; $i++) { 
+            unlink("img/".$array[$i]["nomMedia"]);
+        }
+        var_dump($array);
+        $ps->close;
+
+        $sql = "DELETE FROM `m152`.`post` WHERE (`idPost` = $idPost);";
+        $ps = m152DB()->prepare($sql);
         $answer = $ps->execute();
         $ps->close;
+
+        $sql = "DELETE FROM `m152`.`media` WHERE (`idPost` = $idPost);";
+        $ps = m152DB()->prepare($sql);
+        $answer = $ps->execute();
+        $ps->close;
+
 
         m152DB()->commit();
     } catch (PDOException $e) {
@@ -353,41 +354,44 @@ function getLastId()
     return $answer[0]["MAX(idPost)"];
 }
 
-/**
- * Génere un Post Modal par rapport au nombre de posts
- * @return $html 
- */
-function GeneratePostModalBasedOnNbOfPost()
+function countIdPost()
 {
-    $html = "";
-    for ($i = 1; $i <= getLastId(); $i++) {
-        $html .= "\n <form action=\"deletePostAndMedia.php?id=$i\" method=\"get\">";
-        $html .= "\n <div id=\"postModal$i\" class=\"modal fade\" tabindex=\"-1\" role=\"dialog\" aria-hidden=\"true\">";
-        $html .= "\n <div class=\"modal-dialog\">";
-        $html .= "\n <div class=\"modal-content\">";
-        $html .= "\n <div class=\"modal-header\">";
-        $html .= "\n Delete post ?";
-        $html .= "\n </div>";
-        $html .= "\n <div class=\"modal-body\">";
-        $html .= "\n <form class=\"form center-block\">";
-        $html .= "\n <div class=\"form-group\">";
-        $html .= "\n <textarea class=\"form-control input-lg\" autofocus=\"\" readonly>Are you sure that you want to delete this post ?</textarea>";
-        $html .= "\n </div>";
-        $html .= "\n </form>";
-        $html .= "\n </div>";
-        $html .= "\n <div class=\"modal-footer\">";
-        $html .= "\n <div>";
-
-        $html .= "\n <input id=\"id\" name=\"id\" type=\"hidden\" value=\"$i\">";
-
-        $html .= "\n <button class=\"btn btn-primary btn-sm\" data-dismiss=\"modal\" aria-hidden=\"true\">Yes</button>";
-        $html .= "\n <button class=\"btn btn-primary btn-sm\" data-dismiss=\"modal\" aria-hidden=\"true\">No</button>";
-        $html .= "\n </div>";
-        $html .= "\n </div>";
-        $html .= "\n </div>";
-        $html .= "\n </div>";
-        $html .= "\n </div>";
-        $html .= "\n </form>";
+    static $ps = null;
+    $sql = 'SELECT COUNT(idPost) ';
+    $sql .= 'FROM m152.post';
+    if ($ps == null) {
+        $ps = m152DB()->prepare($sql);
     }
-    return $html;
+    $answer = false;
+    try {
+        if ($ps->execute())
+            $answer = $ps->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+    //return $answer[0]["idPost"];
+    return $answer[0]["COUNT(idPost)"];
+}
+
+/**
+ * Retourne le nombre maximal du nombre de post
+ * @return answer
+ */
+function getFirstId()
+{
+    static $ps = null;
+    $sql = 'SELECT MIN(idPost) ';
+    $sql .= 'FROM m152.post';
+    if ($ps == null) {
+        $ps = m152DB()->prepare($sql);
+    }
+    $answer = false;
+    try {
+        if ($ps->execute())
+            $answer = $ps->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo $e->getMessage();
+    }
+    //return $answer[0]["idPost"];
+    return $answer[0]["MIN(idPost)"];
 }

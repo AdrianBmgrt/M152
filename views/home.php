@@ -59,32 +59,25 @@
 	</div>
 	</div>
 	</div>
-	<!--post modal-->
-	<form action="deletePostAndMedia.php" method="POST">
-		<div id="postModal1" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						Delete post ?
-					</div>
-					<div class="modal-body">
-						<form class="form center-block">
-							<div class="form-group">
-								<textarea class="form-control input-lg" autofocus="" readonly>Are you sure that you want to delete this post ?</textarea>
-							</div>
-						</form>
-					</div>
-					<div class="modal-footer">
-						<div>
-						<input id="prodId" name="prodId" type="hidden" value="xm234jq">
-							<button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">Yes</button>
-							<button class="btn btn-primary btn-sm" data-dismiss="modal" aria-hidden="true">No</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</form>
+	<script>
+		$.ajax({
+  url: url,
+  type: "post",
+  dataType: "json",
+  data: {
+    idbv: 1
+  },
+  success: function(data) {
+    $.each(data, function(index, value) {
+      var id = value.id
+      $("#test").append('<button id="btn_'+id +'"></button>');
+    });
+
+    $('#myModal .modal-body').html( $('#test').html() );
+    $('#myModal').modal();
+  }
+});
+	</script>
 	<script type="text/javascript" src="assets/js/jquery.js"></script>
 	<script type="text/javascript" src="assets/js/bootstrap.js"></script>
 	<script type="text/javascript">

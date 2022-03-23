@@ -1,5 +1,6 @@
 <?php
 
+$pageTitle = "Home";
 
 $action = filter_input(INPUT_GET, "action", FILTER_SANITIZE_URL);
 if (empty($action)) {
@@ -13,6 +14,11 @@ switch ($action) {
     case 'post':
         require("controllers/post.php");
         break;
+    case 'delete':
+        require("controllers/delete.php");
+        break;
 }
 
-?>
+require("views/header.php");
+
+require("views/footer.php");
