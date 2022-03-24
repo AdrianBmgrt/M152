@@ -36,6 +36,7 @@ function m152DB()
     return $pokedexConnector;
 }
 
+// Retourne tous les medias
 function readAllPostAndMedia()
 {
     static $ps = null;
@@ -57,6 +58,7 @@ function readAllPostAndMedia()
     return $answer;
 }
 
+// Retourne tous les medias par rapport à l'id donné
 function readPostAndMediaWithId($id)
 {
     static $ps = null;
@@ -98,78 +100,79 @@ function getCountFromDifferentIdPost()
     return $answer;
 }
 
+// Permet de gérer des carousels par au nombre de post
 function PostAndMediaToCarousel()
 {
     $html = "";
     $array = getCountFromDifferentIdPost();
-    if (!empty($array)) {
-        // Chaque ligne
-        for ($i = countIdPost(); $i >= getFirstId(); $i--) {
-            $arrayMedia = readPostAndMediaWithId($i);
-            var_dump($arrayMedia[0]["idPost"]);
-            $id = $arrayMedia[0]["idPost"];
-            $html .= "\n <div class=\"panel panel-default\">";
-            $html .= "\n <div id=\"my-pics$id\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
+    var_dump(countIdPost());
+var_dump(readAllPostAndMedia());
+    for ($i = countIdPost(); $i >= getFirstId(); $i--) {
+        //$arrayMedia = readPostAndMediaWithId($i);
+        $arrayMedia = readAllPostAndMedia();
+        $id = $arrayMedia[0]["idPost"];
 
-            $html .= "\n <ol class=\"carousel-indicators\">";
+        $html .= "\n <div class=\"panel panel-default\">";
+        $html .= "\n <div id=\"my-pics$id\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"false\" style=\"margin:auto;\" >";
 
-            for ($j = 1; $j < $array[$i]["count(*)"] + 1; $j++) {
-                $html .= "\n <li data-target=\"#my-pics$id\" data-slide-to=\"$id\" class=\"active\"></li>";
-            }
+        $html .= "\n <ol class=\"carousel-indicators\">";
 
-            $html .= "\n </ol>";
-            $html .= "\n <div class=\"carousel-inner\" role=\"listbox\">";
-
-            for ($k = 0; $k < $array[$i]["count(*)"]; $k++) {
-                if ($k == 0) {
-                    $html .= "\n <div align=\"center\" class=\"item active\">";
-                } else {
-                    $html .= "\n <div align=\"center\" class=\"item\">";
-                }
-                if ($arrayMedia[$k]["typeMedia"] == "mp4" || $arrayMedia[$k]["typeMedia"] == "m4v") {
-                    $html .= "\n <video width=\"100%\" height=\"100%\" autoplay loop controls>";
-                    $html .= "\n <source src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
-                    $html .= "\n </video>";
-                    $html .= "\n </div>";
-                }
-                if ($arrayMedia[$k]["typeMedia"] == "png" || $arrayMedia[$k]["typeMedia"] == "jpg" || $arrayMedia[$k]["typeMedia"] == "jpeg" || $arrayMedia[$k]["typeMedia"] == "gif" || $arrayMedia[$k]["typeMedia"] == "jpg") {
-                    $html .= "\n <img src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" alt=\"" . $arrayMedia[$k]["nomMedia"] . "\">";
-                    $html .= "\n </div>";
-                }
-
-                if ($arrayMedia[$k]["typeMedia"] == "mp3" || $arrayMedia[$k]["typeMedia"] == "wav" || $arrayMedia[$k]["typeMedia"] == "ogg") {
-                    $html .= "\n <audio controls autoplay";
-                    $html .= "\n <source src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
-                    $html .= "\n </audio>";
-                    $html .= "\n </div>";
-                }
-            }
-            $html .= "\n </div>";
-
-            if ($array[$i]["count(*)"] > 1) {
-                $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$id\" role=\"button\" data-slide=\"prev\">";
-                $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
-                $html .= "\n <span class=\"sr-only\">Previous</span>";
-                $html .= "\n </a>";
-
-                $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$id\" role=\"button\" data-slide=\"next\">";
-                $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
-                $html .= "\n <span class=\"sr-only\">Next</span>";
-                $html .= "\n </a>";
-            }
-
-            $html .= "\n </div>";
-
-            $html .= "\n <div class=\"panel-body\">";
-            $html .= "\n <hr>";
-            $html .= "\n " . $arrayMedia[0]["commentaire"];
-            $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
-            $html .= "\n <a href=\"?action=delete&id=".$id."\" role=\"button\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
-            $html .= "\n </div>";
-
-            $html .= "\n </div>";
+        for ($j = 1; $j < $array[$i]["count(*)"] + 1; $j++) {
+            $html .= "\n <li data-target=\"#my-pics$id\" data-slide-to=\"$id\" class=\"active\"></li>";
         }
+
+        $html .= "\n </ol>";
+        $html .= "\n <div class=\"carousel-inner\" role=\"listbox\">";
+
+        for ($k = 0; $k < $array[$i]["count(*)"]; $k++) {
+            if ($k == 0) {
+                $html .= "\n <div align=\"center\" class=\"item active\">";
+            } else {
+                $html .= "\n <div align=\"center\" class=\"item\">";
+            }
+            if ($arrayMedia[$k]["typeMedia"] == "mp4" || $arrayMedia[$k]["typeMedia"] == "m4v") {
+                $html .= "\n <video width=\"100%\" height=\"100%\" autoplay loop controls>";
+                $html .= "\n <source src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
+                $html .= "\n </video>";
+                $html .= "\n </div>";
+            }
+            if ($arrayMedia[$k]["typeMedia"] == "png" || $arrayMedia[$k]["typeMedia"] == "jpg" || $arrayMedia[$k]["typeMedia"] == "jpeg" || $arrayMedia[$k]["typeMedia"] == "gif" || $arrayMedia[$k]["typeMedia"] == "jpg") {
+                $html .= "\n <img src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" alt=\"" . $arrayMedia[$k]["nomMedia"] . "\">";
+                $html .= "\n </div>";
+            }
+
+            if ($arrayMedia[$k]["typeMedia"] == "mp3" || $arrayMedia[$k]["typeMedia"] == "wav" || $arrayMedia[$k]["typeMedia"] == "ogg") {
+                $html .= "\n <audio controls autoplay";
+                $html .= "\n <source src=\"img/" . $arrayMedia[$k]["nomMedia"] . "\" type=\"video/mp4\">";
+                $html .= "\n </audio>";
+                $html .= "\n </div>";
+            }
+        }
+        $html .= "\n </div>";
+
+        if ($array[$i]["count(*)"] > 1) {
+            $html .= "\n <a class=\"left carousel-control\" href=\"#my-pics$id\" role=\"button\" data-slide=\"prev\">";
+            $html .= "\n <span class=\"icon-prev\" aria-hidden=\"true\"></span>";
+            $html .= "\n <span class=\"sr-only\">Previous</span>";
+            $html .= "\n </a>";
+
+            $html .= "\n <a class=\"right carousel-control\" href=\"#my-pics$id\" role=\"button\" data-slide=\"next\">";
+            $html .= "\n <span class=\"icon-next\" aria-hidden=\"true\"></span>";
+            $html .= "\n <span class=\"sr-only\">Next</span>";
+            $html .= "\n </a>";
+        }
+
+        $html .= "\n </div>";
+
+        $html .= "\n <div class=\"panel-body\">";
+        $html .= "\n <hr>";
+        $html .= "\n " . $arrayMedia[0]["commentaire"];
+        $html .= "\n <a><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></a>";
+        $html .= "\n <a href=\"?action=delete&id=" . $id . "\" role=\"button\" data-toggle=\"modal\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></a>";
+        $html .= "\n </div>";
+        $html .= "\n </div>";
     }
+
     return $html;
 }
 
@@ -302,12 +305,12 @@ function DeleteMediaAndPost($idPost)
 
         $sql = 'SELECT m.nomMedia ';
         $sql .= 'FROM m152.media as m ';
-        $sql .= 'WHERE m.idPost = ' . $idPost ;
+        $sql .= 'WHERE m.idPost = ' . $idPost;
         $ps = m152DB()->prepare($sql);
         $array = $ps->execute();
         $array = $ps->fetchAll(PDO::FETCH_ASSOC);
-        for ($i=0; $i < count($array) ; $i++) { 
-            unlink("img/".$array[$i]["nomMedia"]);
+        for ($i = 0; $i < count($array); $i++) {
+            unlink("img/" . $array[$i]["nomMedia"]);
         }
         var_dump($array);
         $ps->close;
